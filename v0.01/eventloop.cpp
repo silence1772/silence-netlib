@@ -16,7 +16,6 @@ void EventLoop::Loop()
 {
 	std::cout << "Waitting poll......" << std::endl;
 	poll(NULL, 0, 5 * 1000);
-	std::cout << "Polling timeout" << std::endl;
-	std::cout << "EventLoop " << this << " stop looping" << std::endl;
+	std::cout << "Polling timeout and Nothing happend" << std::endl;
 }
 
