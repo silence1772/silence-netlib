@@ -6,28 +6,28 @@
 
 // 前向声明
 struct epoll_event;
-class Channel;
+class EventItem;
 class EventLoop;
 
 class Epoller
 {
 public:
-	typedef std::vector<Channel*> ChannelList;
+	typedef std::vector<EventItem*> EventItemList;
 
 	Epoller();
 	~Epoller();
 	
-	int Poll(ChannelList* active_channels);
-	void UpdateChannel(Channel* channel);
+	int Poll(EventItemList* active_eventitems);
+	void UpdateEventItem(EventItem* eventitem);
 
 private:
-	void Update(int operation, Channel* channel);
-	void FillActiveChannels(int num_events, ChannelList* active_channels) const;
+	void Update(int operation, EventItem* eventitem);
+	void FillActiveEventItems(int num_events, EventItemList* active_eventitems) const;
 	
-	typedef std::map<int, Channel*> ChannelMap;
+	typedef std::map<int, EventItem*> EventItemMap;
 	typedef std::vector<struct epoll_event> EventList;
 
-	ChannelMap channels_;
+	EventItemMap eventitems_;
 	EventList events_;
 
 	int epollfd_;

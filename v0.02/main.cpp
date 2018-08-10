@@ -3,7 +3,7 @@
 #include <sys/timerfd.h>
 #include <iostream>
 #include "eventloop.h"
-#include "channel.h"
+#include "eventitem.h"
 
 // global varible
 EventLoop* g_loop;
@@ -23,9 +23,9 @@ int main()
 	g_loop = &loop;
 	
 	int timerfd = timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK | TFD_CLOEXEC);
-  	Channel channel(&loop, timerfd);
-  	channel.SetReadCallback(timeout);
-  	channel.EnableReading();
+  	EventItem eventitem(&loop, timerfd);
+  	eventitem.SetReadCallback(timeout);
+  	eventitem.EnableReading();
 
   	struct itimerspec howlong;
   	bzero(&howlong, sizeof howlong);

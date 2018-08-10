@@ -4,7 +4,7 @@
 #include <vector>
 #include <memory>
 
-class Channel;
+class EventItem;
 class Epoller;
 
 class EventLoop
@@ -15,13 +15,13 @@ public:
 	
 	void Loop();
 	void Quit() { quit_ = true; }
-	void UpdateChannel(Channel* channel);
+	void UpdateEventItem(EventItem* eventitem);
 
 private:
-	typedef std::vector<Channel*> ChannelList;
+	typedef std::vector<EventItem*> EventItemList;
 
 	bool quit_;
-	ChannelList active_channels_;
+	EventItemList active_eventitems_;
 	std::unique_ptr<Epoller> epoller_;
 };
 

@@ -2,20 +2,20 @@
 #include <sys/epoll.h>
 #include <string.h> // for bzero()
 #include <iostream>
-#include "channel.h"
+#include "eventitem.h"
 
 Epoller::Epoller()
 	: epollfd_(epoll_create1(EPOLL_CLOEXEC)),
 	  events_(10) {}
 Epoller::~Epoller() {}
 
-int Epoller::Poll(ChannelList* active_channels)
+int Epoller::Poll(EventItemList* active_eventitems)
 {
 	int active_event_num = epoll_wait(epollfd_, &*events_.begin(), static_cast<int>(events_.size()), 5000);
 	if (active_event_num > 0)
 	{
 		std::cout << "There are " << active_event_num << " event(s) happened" << std::endl;
-		FillActiveChannels(active_event_num, active_channels);
+		FillActiveEventItems(active_event_num, active_eventitems);
 		if (size_t(active_event_num) == events_.size())
     	{
       		events_.resize(events_.size() * 2);
@@ -32,43 +32,43 @@ int Epoller::Poll(ChannelList* active_channels)
 	return active_event_num;
 }
 
-void Epoller::UpdateChannel(Channel* channel)
+void Epoller::UpdateEventItem(EventItem* eventitem)
 {
-	const int status = channel->GetStatus();
-	const int fd = channel->GetFd();
+	const int status = eventitem->GetStatus();
+	const int fd = eventitem->GetFd();
 	if (status == -1) // New
 	{
-		channels_[fd] = channel;
-		channel->SetStatus(0);
-		Update(EPOLL_CTL_ADD, channel);
-		std::cout << "The channel with fd " << fd << " is registered to Epoller" << std::endl;
+		eventitems_[fd] = eventitem;
+		eventitem->SetStatus(0);
+		Update(EPOLL_CTL_ADD, eventitem);
+		std::cout << "The EventItem with fd " << fd << " is registered to Epoller" << std::endl;
 	}
 	else // Added
 	{
-		Update(EPOLL_CTL_MOD, channel);
-		std::cout << "The channel with fd " << fd << " is modified" << std::endl;
+		Update(EPOLL_CTL_MOD, eventitem);
+		std::cout << "The EventItem with fd " << fd << " is modified" << std::endl;
 	}
 }
 
-void Epoller::Update(int operation, Channel* channel)
+void Epoller::Update(int operation, EventItem* eventitem)
 {
 	struct epoll_event event;
 	bzero(&event, sizeof(event));
-	event.events = channel->GetEvents();
-  	event.data.ptr = channel;
-  	int fd = channel->GetFd();
+	event.events = eventitem->GetConcernEventTypes();
+  	event.data.ptr = eventitem;
+  	int fd = eventitem->GetFd();
   	if (epoll_ctl(epollfd_, operation, fd, &event) < 0)
   	{
   		std::cout << "epoll_ctl error" << std::endl;
   	}
 }
 
-void Epoller::FillActiveChannels(int active_event_num, ChannelList* active_channels) const
+void Epoller::FillActiveEventItems(int active_event_num, EventItemList* active_eventitems) const
 {
 	for (int i = 0; i < active_event_num; ++i)
 	{
-		Channel* channel = static_cast<Channel*>(events_[i].data.ptr);
-		channel->SetRevents(events_[i].events);
-		active_channels->push_back(channel);
+		EventItem* eventitem = static_cast<EventItem*>(events_[i].data.ptr);
+		eventitem->SetActiveEventTypes(events_[i].events);
+		active_eventitems->push_back(eventitem);
 	}
 }

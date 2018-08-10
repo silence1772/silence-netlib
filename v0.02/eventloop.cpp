@@ -1,6 +1,6 @@
 #include "eventloop.h"
 #include <iostream>
-#include "channel.h"
+#include "eventitem.h"
 #include "epoller.h"
 
 EventLoop::EventLoop()
@@ -20,10 +20,10 @@ void EventLoop::Loop()
 	std::cout << "EventLoop " << this << " start looping" << std::endl;
 	while (!quit_)
 	{
-		active_channels_.clear();
+		active_eventitems_.clear();
 		std::cout << "Waitting poll......" << std::endl;
-		epoller_->Poll(&active_channels_);
-		for (auto it = active_channels_.begin(); it != active_channels_.end(); ++it)
+		epoller_->Poll(&active_eventitems_);
+		for (auto it = active_eventitems_.begin(); it != active_eventitems_.end(); ++it)
 		{
 			(*it)->HandleEvent();
 		}
@@ -32,7 +32,7 @@ void EventLoop::Loop()
 
 }
 
-void EventLoop::UpdateChannel(Channel* channel)
+void EventLoop::UpdateEventItem(EventItem* eventitem)
 {
-	epoller_->UpdateChannel(channel);
+	epoller_->UpdateEventItem(eventitem);
 }
