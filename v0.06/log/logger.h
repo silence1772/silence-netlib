@@ -2,7 +2,7 @@
 #define LOGGER_H
 
 #include "logstream.h"
-#include "timestamp.h"
+#include "../timestamp.h"
 
 class Logger
 {
@@ -35,7 +35,7 @@ public:
 	static void SetFlush(FlushFunc);
 
 private:
-	TimeStamp time_;
+	//Timestamp time_;
 	LogStream stream_;
 	LogLevel level_;
 	int line_;

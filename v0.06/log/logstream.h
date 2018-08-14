@@ -19,7 +19,7 @@ public:
 
 	void Append(const char* /*restrict*/ buf, size_t len)
 	{
-		if (implicit_cast<size_t>(GetAvailbale()) > len)
+		if ((size_t)(GetAvailbale()) > len)
 		{
 			memcpy(cur_, buf, len);
 			cur_ += len;
@@ -39,7 +39,7 @@ private:
 
 	char data_[SIZE];
 	char* cur_;
-}
+};
 
 
 class LogStream

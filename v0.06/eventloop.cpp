@@ -2,23 +2,23 @@
 #include <sys/time.h>
 #include <sys/eventfd.h>
 #include <unistd.h>
-#include <iostream>
 #include "eventitem.h"
 #include "epoller.h"
 #include "timerqueue.h"
 #include "timestamp.h"
 #include "currentthread.h"
+#include "log/logger.h"
 
 typedef std::function<void()> TimerCallback;
 typedef std::function<void()> Functor;
 
 static int CreateEventfd()
 {
-  int evtfd = eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
-  if (evtfd < 0)
-  {
-    std::cout << "Failed in eventfd" << std::endl;
-  }
+	int evtfd = eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
+	if (evtfd < 0)
+	{
+		LOG_SYSERR << "CreateEventfd()";
+	}
   return evtfd;
 }
 
@@ -32,24 +32,21 @@ EventLoop::EventLoop()
 	  wakeup_eventitem_(new EventItem(this, wakeup_fd_))
 
 {
-	std::cout << "EventLoop " << this << " created" << std::endl;
 	wakeup_eventitem_->SetReadCallback(std::bind(&EventLoop::HandleWakeup, this));
 	wakeup_eventitem_->EnableReading();
 }
 
 EventLoop::~EventLoop()
 {
-	std::cout << "EventLoop: Bye~~" << std::endl;
+
 }
 
 void EventLoop::Loop()
 {
 	AssertInBirthThread();
-	std::cout << "EventLoop " << this << " start looping" << std::endl;
 	while (!quit_)
 	{
 		active_eventitems_.clear();
-		std::cout << "Waitting poll......" << std::endl;
 		epoller_->Poll(&active_eventitems_);
 		for (auto it = active_eventitems_.begin(); it != active_eventitems_.end(); ++it)
 		{
@@ -57,7 +54,7 @@ void EventLoop::Loop()
 		}
 		DoFunctorQueue();
 	}
-	std::cout << "EventLoop " << this << " stop looping" << std::endl;
+	LOG_TRACE << "EventLoop " << this << " stop looping";
 
 }
 
@@ -68,14 +65,12 @@ void EventLoop::UpdateEventItem(EventItem* eventitem)
 
 void EventLoop::AssertInBirthThread()
 {
-	if (!IsInBirthThread()) Abort();
-}
-
-void EventLoop::Abort()
-{
-	std::cout << "The EventLoop is created in thread: " << thread_id_ << std::endl;
-	std::cout << "This is thread: " << GetTid() << std::endl;
-	exit(1);
+	if (!IsInBirthThread())
+	{
+		LOG_FATAL << "EventLoop::AssertInBirthThread() - EventLoop " << this
+				  << " was created in thread id = " << thread_id_
+				  << ", current thread id = " << GetTid();
+	}
 }
 
 void EventLoop::RunAt(const Timestamp& timestamp, const TimerCallback& cb)
@@ -124,7 +119,7 @@ void EventLoop::Wakeup()
 	ssize_t n = write(wakeup_fd_, &one, sizeof(one));
 	if (n != sizeof(one))
 	{
-		std::cout << "write error" << std::endl;
+		LOG_SYSERR << "write error";
 	}
 }
 
@@ -134,7 +129,7 @@ void EventLoop::HandleWakeup()
 	ssize_t n = read(wakeup_fd_, &one, sizeof(one));
 	if (n != sizeof(one))
 	{
-		std::cout << "read error" << std::endl;
+		LOG_SYSERR << "read error";
 	}
 }
 

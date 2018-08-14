@@ -1,4 +1,5 @@
 #include "logstream.h"
+#include <algorithm>
 #include <string.h>
 #include <stdint.h>
 

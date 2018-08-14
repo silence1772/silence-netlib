@@ -1,8 +1,8 @@
 #include "epoller.h"
 #include <sys/epoll.h>
 #include <string.h> // for bzero()
-#include <iostream>
 #include "eventitem.h"
+#include "log/logger.h"
 
 Epoller::Epoller()
 	: epollfd_(epoll_create1(EPOLL_CLOEXEC)),
@@ -14,7 +14,7 @@ int Epoller::Poll(EventItemList* active_eventitems)
 	int active_event_num = epoll_wait(epollfd_, &*events_.begin(), static_cast<int>(events_.size()), 5000);
 	if (active_event_num > 0)
 	{
-		std::cout << "There are " << active_event_num << " event(s) happened" << std::endl;
+		LOG_TRACE << active_event_num << " enents happened";
 		FillActiveEventItems(active_event_num, active_eventitems);
 		if (size_t(active_event_num) == events_.size())
     	{
@@ -23,11 +23,11 @@ int Epoller::Poll(EventItemList* active_eventitems)
 	}
 	else if (active_event_num == 0)
 	{
-		std::cout << "Polling timeout and Nothing happend" << std::endl;
+		LOG_TRACE << "nothin happened";
 	}
 	else
 	{
-		std::cout << "epoll_wait error" << std::endl;
+		LOG_SYSERR << "Epoller::Poll()";
 	}
 	return active_event_num;
 }
@@ -41,12 +41,10 @@ void Epoller::UpdateEventItem(EventItem* eventitem)
 		eventitems_[fd] = eventitem;
 		eventitem->SetStatus(0);
 		Update(EPOLL_CTL_ADD, eventitem);
-		std::cout << "The EventItem with fd " << fd << " is registered to Epoller" << std::endl;
 	}
 	else // Added
 	{
 		Update(EPOLL_CTL_MOD, eventitem);
-		std::cout << "The EventItem with fd " << fd << " is modified" << std::endl;
 	}
 }
 
@@ -59,7 +57,7 @@ void Epoller::Update(int operation, EventItem* eventitem)
   	int fd = eventitem->GetFd();
   	if (epoll_ctl(epollfd_, operation, fd, &event) < 0)
   	{
-  		std::cout << "epoll_ctl error" << std::endl;
+  		LOG_SYSERR << "Epoller::Update() epoll_ctl";
   	}
 }
 

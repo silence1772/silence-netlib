@@ -11,8 +11,8 @@ LIB_SRC = 			\
 	mutex.h \
 	condition.h \
 	eventloopthread.cpp \
-	logstream.cpp \
-	logger.cpp
+	log/logstream.cpp \
+	log/logger.cpp
 
 BINARIES = test
 CXXFLAGS = -std=c++11
@@ -20,4 +20,3 @@ LDFLAGS = -lpthread
 
 $(BINARIES):$(LIB_SRC)
 	g++ $(CXXFLAGS) $(LIB_SRC) $(LDFLAGS) -o $(BINARIES)
-

@@ -1,7 +1,7 @@
 #include "thread.h"
 #include <pthread.h>
-#include <iostream>
 #include "currentthread.h"
+#include "log/logger.h"
 
 Atomic<int64_t> Thread::num_created_;
 
@@ -43,12 +43,12 @@ void Thread::RunInThread()
 	t_thread_name = name_.empty() ? "defaultThread" : name_.c_str();
 	try
 	{
-		std::cout << "In thread: " << name_.c_str() << std::endl;
 		thread_func_();
 	}
 	catch(...)
 	{
 		throw std::exception();
+		abort();
 	}
 }
 
@@ -58,7 +58,7 @@ void Thread::Start()
 	if (pthread_create(&pthread_id_, NULL, StartThread, this))
 	{
 		is_started_ = false;
-		std::cout << "failed in pthread_create" << std::endl;
+		LOG_SYSFATAL << "failed in pthread_create";
 	}
 }
 

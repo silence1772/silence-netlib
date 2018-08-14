@@ -3,17 +3,17 @@
 #include <unistd.h> // for close()
 #include <string.h> // for bzero()
 #include <sys/time.h> // gor gettimeofday()
-#include <iostream>
 #include "timestamp.h"
 #include "timer.h"
 #include "eventloop.h"
+#include "log/logger.h"
 
 int CreateTimerfd()
 {
 	int timerfd = timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK | TFD_CLOEXEC);
 	if (timerfd < 0)
 	{
-    	std::cout << "timerfd_create error" << std::endl;
+    	LOG_SYSERR << "timerfd_create error";
 	}
 	return timerfd;
 }
@@ -82,7 +82,7 @@ void TimerQueue::HandelTimerExpired()
 	uint64_t exp_cnt;
 	ssize_t n = read(timerfd_, &exp_cnt, sizeof(exp_cnt));
 	if (n != sizeof(exp_cnt)) 
-		std::cout << "read error" << std::endl;
+		LOG_SYSERR << "read error";
 
 	// run the callback
 	std::vector<Entry> expired = GetExpired(Timestamp::GetNow());

@@ -35,7 +35,6 @@ public:
 	void QueueInLoop(Functor func);
 	void Wakeup();
 private:
-	void Abort();
 	void HandleWakeup();
 	void DoFunctorQueue();
 
