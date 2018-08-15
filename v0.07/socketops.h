@@ -4,6 +4,9 @@
 #include <arpa/inet.h>
 #include <endian.h>
 
+namespace socketops
+{
+
 inline uint64_t HostToNetwork64(uint64_t host64)
 {
 	return htobe64(host64);
@@ -43,4 +46,5 @@ void Close(int sockfd);
 void ToHostPort(char* buf, size_t size, const struct sockaddr_in& addr);
 void FromHostPort(const char* ip, uint16_t port, struct sockaddr_in* addr);
 
+}
 #endif // SOCKETOPS_H

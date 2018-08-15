@@ -1,32 +1,25 @@
-#include <sys/time.h>
+#include <unistd.h>
 #include <iostream>
-#include <string>
+#include "acceptor.h"
 #include "eventloop.h"
-#include "timestamp.h"
-#include "thread.h"
-#include "log/logger.h"
+#include "socketops.h"
+#include "inetaddress.h"
 
-int cnt = 0;
-EventLoop* g_loop;
-
-void run2()
+void test(int sockfd, const InetAddress& peer_addr)
 {
-	LOG_INFO << "log_info";
-	LOG_TRACE << "log_trace";
-	LOG_DEBUG << "log_debug";
-}
-
-void run1()
-{
-	LOG_INFO << "test";
-	g_loop->RunEvery(2 * Timestamp::kMicroSecondsPerSecond, run2);
+	std::cout << "Accept a new connection from " << peer_addr.ToHostPort() << std::endl;
+	write(sockfd, "How are you?\n", 13);
+	socketops::Close(sockfd);
 }
 
 int main()
 {
-	EventLoop loop;
-	g_loop = &loop;
+	InetAddress listen_addr(8888);
+ 	EventLoop loop;
 
-	loop.RunAfter(2 * Timestamp::kMicroSecondsPerSecond, run1);
+ 	Acceptor acceptor(&loop, listen_addr);
+ 	acceptor.SetNewConnectionCallback(test);
+ 	acceptor.Listen();
+
 	loop.Loop();
 }

@@ -12,7 +12,11 @@ LIB_SRC = 			\
 	condition.h \
 	eventloopthread.cpp \
 	log/logstream.cpp \
-	log/logger.cpp
+	log/logger.cpp \
+	socketops.cpp \
+	socket.cpp \
+	inetaddress.cpp \
+	acceptor.cpp
 
 BINARIES = test
 CXXFLAGS = -std=c++11

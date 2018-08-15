@@ -9,7 +9,7 @@
 
 Acceptor::Acceptor(EventLoop* loop, const InetAddress& addr)
 	: loop_(loop),
-	  accept_socket_(CreateNonblocking()),
+	  accept_socket_(socketops::CreateNonblocking()),
 	  accept_eventitem_(loop, accept_socket_.GetSockfd()),
 	  is_listenning(false)
 {
@@ -29,7 +29,7 @@ void Acceptor::Listen()
 void Acceptor::HandelNewConnection()
 {
 	loop_->AssertInBirthThread();
-	InetAddress peer_addr;
+	InetAddress peer_addr(0);
 	int connfd = accept_socket_.Accept(&peer_addr);
 	if (connfd >= 0)
 	{
@@ -39,7 +39,7 @@ void Acceptor::HandelNewConnection()
 		}
 		else
 		{
-			Close(connfd);
+			socketops::Close(connfd);
 		}
 	}
 	else

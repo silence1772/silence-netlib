@@ -6,24 +6,24 @@
 
 Socket::~Socket()
 {
-	Close(sockfd_);
+	socketops::Close(sockfd_);
 }
 
 void Socket::Bind(const InetAddress& addr)
 {
-	Bind(sockfd_, addr.GetSockAddrInet());
+	socketops::Bind(sockfd_, addr.GetSockAddrInet());
 }
 
 void Socket::Listen()
 {
-	Listen(sockfd_);
+	socketops::Listen(sockfd_);
 }
 
 int Socket::Accept(InetAddress* peer_addr)
 {
 	struct sockaddr_in addr;
 	bzero(&addr, sizeof(addr));
-	int connfd = Accept(sockfd_, &addr);
+	int connfd = socketops::Accept(sockfd_, &addr);
 	if (connfd >= 0)
 	{
 		peer_addr->SetSockAddrInet(addr);
